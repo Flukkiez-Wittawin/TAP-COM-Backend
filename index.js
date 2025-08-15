@@ -369,67 +369,75 @@ const uploadProfile = multer({ storage: storageProfile });
 
 // ------------------- Routes -------------------
 // อัปเดตโปรไฟล์
-app.post("/profile/update", uploadProfile.single("avatar"), async (req, res) => {
-  try {
-    const {
-      ID,
-      email,
-      firstName,
-      lastName,
-      birthDay,
-      alreadyCheck,
-      isOnBlacklist,
-      country,
-      phoneNumber,
-      address,
-      line,
-      facebook,
-      instagram,
-      twitter,
-      youtube,
-      tiktok,
-    } = req.body;
+// สมมติคุณมี auth middleware ที่เติม req.user.email มาจาก JWT
+// และมี uploadProfile (multer) แล้ว
 
-    const profileUrl = req.file
-      ? `${getBaseUrl(req)}/static/profile/${req.file.filename}`
-      : undefined;
-
-    const result = await UpdateProfile(
-      { id: ID, email },
-      {
-        firstName,
-        lastName,
-        birthDay,
-        alreadyCheck,
-        isOnBlacklist,
-        country,
-        phoneNumber,
-        address,
-        line,
-        facebook,
-        instagram,
-        twitter,
-        youtube,
-        tiktok,
-      },
-      { profileUrl }
-    );
-
+app.post(
+  "/profile/update",
+  uploadProfile.single("avatar"),
+  async (req, res) => {
     try {
-      const currentDate = await getCurrentDate();
-      AddDataToLog(
-        `ID : TAP.COM-${ID} | ${email} ได้ทำการ Update ข้อมูล ในเวลา ${currentDate}`
-      );
-    } catch (err) {
-      console.error(err);
-    }
+      // 1) รองรับทั้ง multipart และ JSON:
+      // - ถ้าเป็น multipart: multer จะเติม req.body ให้เป็น string ล้วน
+      // - ถ้าเป็น JSON: ให้แน่ใจว่า app.use(express.json()) ถูกประกาศไว้ก่อน routes
+      const b = req.body || {};
 
-    res.status(result.success ? 200 : 404).json(result);
-  } catch (e) {
-    console.error("profile/update error:", e);
-    res.status(500).json({ success: false, message: "Server error" });
+      // 2) ดึง email จาก JWT ก่อน (ปลอดภัยกว่า body), ถ้าไม่มีค่อย fallback
+      const emailFromJwt = (req.user?.email || b.email || "").trim().toLowerCase();
+      const idFromBody   = String(b.ID ?? "").trim(); // บางระบบเก็บเป็น "123" อย่า parseInt
+
+      if (!emailFromJwt && !idFromBody) {
+        return res.status(400).json({ success:false, message:"Missing identifier (email or ID)" });
+      }
+
+      // 3) สร้าง profileUrl ถ้ามีไฟล์
+      const profileUrl = req.file
+        ? `${getBaseUrl(req)}/static/profile/${req.file.filename}`
+        : undefined;
+
+      // 4) เตรียม payload (แปลงเป็น camelCase และ trim)
+      const toStr = (v) => (typeof v === "string" ? v.trim() : v);
+      const payload = {
+        firstName:   toStr(b.firstName),
+        lastName:    toStr(b.lastName),
+        birthDay:    toStr(b.birthDay),
+        alreadyCheck: b.alreadyCheck,      // boolean/"true"/"false" ให้ไป normalize ใน UpdateProfile
+        isOnBlacklist: b.isOnBlacklist,
+        country:     toStr(b.country),
+        phoneNumber: toStr(b.phoneNumber),
+        address:     toStr(b.address),
+        line:        toStr(b.line),
+        facebook:    toStr(b.facebook),
+        instagram:   toStr(b.instagram),
+        twitter:     toStr(b.twitter),
+        youtube:     toStr(b.youtube),
+        tiktok:      toStr(b.tiktok),
+      };
+
+      // 5) เรียก service (ใช้ email จาก JWT เป็นหลัก)
+      const result = await UpdateProfile(
+        { id: idFromBody, email: emailFromJwt },
+        payload,
+        { profileUrl }
+      );
+
+      // 6) เขียน log (อย่าไว้ใจ ID ถ้าไม่เจอ user)
+      try {
+        const currentDate = await getCurrentDate();
+        AddDataToLog(
+          `ID : TAP.COM-${idFromBody || "?"} | ${emailFromJwt || "?"} Update profile @ ${currentDate}`
+        );
+      } catch (err) {
+        console.error("AddDataToLog error:", err);
+      }
+
+      return res.status(result.success ? 200 : 404).json(result);
+    } catch (e) {
+      console.error("profile/update error:", e);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
   }
-});
+);
 
 // โหลดสินค้าทั้งหมด
 app.get("/All_Products", async (req, res) => {
