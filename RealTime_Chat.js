@@ -1,4 +1,4 @@
-// chat_server.js
+// chat_server.js (fixed & hardened)
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -9,31 +9,52 @@ const path = require("path");
 // ---- ใช้ตัวตรวจ JWT เดิมของคุณ ----
 const { CheckAvalableToken } = require("./system/jwt_token");
 
-// ตั้งค่า
-const PORT = Number(process.env.PORT_CHAT || 3002);
-const FRONT_ORIGIN = process.env.FRONT_ORIGIN || "http://localhost:5173";
+// ===== Config =====
+const PORT = Number(process.env.PORT || process.env.PORT_CHAT || 3002);
 
+// รองรับหลาย origin (dev + prod) ด้วยตัวแปรแยกด้วย comma
+// ตัวอย่าง: FRONT_ORIGINS="http://localhost:5173,https://your-frontend.com"
+const FRONT_ORIGINS = (process.env.FRONT_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// โฟลเดอร์เก็บประวัติแชท (ไฟล์ละ product)
 const CHATS_DIR = path.join(__dirname, "Chats");
 const HISTORY_PAGE_SIZE = 50;
+const MESSAGE_MAX_LEN = 2000;
 
-// สร้างโฟลเดอร์เก็บแชท
+// ===== Bootstrap storage dir =====
 (async () => {
   await fs.mkdir(CHATS_DIR, { recursive: true });
 })().catch(console.error);
 
+// ===== App / Server =====
 const app = express();
 const server = http.createServer(app);
 
 app.use(express.json());
-app.use(cors({
-  origin: FRONT_ORIGIN,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+app.set("trust proxy", 1); // ให้ req.protocol ถูก (เช่นหลัง proxy/Render)
 
+// CORS ให้ตรงกันทั้ง REST และ Socket
+app.use(
+  cors({
+    origin: FRONT_ORIGINS,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
-// -------- Utilities --------
+// ===== Utilities =====
+const safeIdRegex = /^[\w-]+$/; // กัน path traversal
+const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+
+function safeProductId(pid) {
+  const s = String(pid || "");
+  return safeIdRegex.test(s) ? s : null;
+}
+
 function roomName(productId) {
   return `product:${String(productId)}`;
 }
@@ -54,9 +75,25 @@ async function loadRoom(productId) {
   }
 }
 
-async function saveRoom(productId, messages) {
-  const f = fileForRoom(productId);
-  await fs.writeFile(f, JSON.stringify(messages, null, 2), "utf-8");
+// serialize การเขียนไฟล์กัน race (พร้อมกันหลาย message)
+const saveQueues = new Map();
+async function saveRoomQueued(productId, messages) {
+  const key = String(productId);
+  const prev = saveQueues.get(key) || Promise.resolve();
+  const next = prev
+    .catch(() => {}) // ไม่ให้ chain พังถ้าอันก่อน error
+    .then(async () => {
+      const f = fileForRoom(productId);
+      // เขียนไฟล์แบบ pretty เพื่ออ่านง่าย (จะใหญ่ขึ้นเล็กน้อย)
+      await fs.writeFile(f, JSON.stringify(messages, null, 2), "utf-8");
+    })
+    .finally(() => {
+      // ถ้า next ถูก resolve แล้ว และ queue ยังชี้มาที่ next ก็ลบทิ้ง
+      if (saveQueues.get(key) === next) saveQueues.delete(key);
+    });
+
+  saveQueues.set(key, next);
+  return next;
 }
 
 function nowISO() {
@@ -67,22 +104,32 @@ function makeId() {
   return `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-// -------- REST เล็กน้อยสำหรับดึงประวัติ (ออปชัน) --------
+function sanitizeText(s) {
+  const t = String(s || "");
+  // เอาเฉพาะข้อความดิบ ๆ กัน XSS ฝั่ง client (แนะนำให้ escape ที่ frontend เพิ่มด้วย)
+  return t.replace(/[\u0000-\u001F\u007F]/g, "").slice(0, MESSAGE_MAX_LEN);
+}
+
+// ===== REST (optional) =====
 app.get("/health", (_req, res) => res.json({ ok: true, service: "chat" }));
 
 // /history/:productId?before=<iso>&limit=50
 app.get("/history/:productId", async (req, res) => {
   try {
-    const { productId } = req.params;
+    const productId = safeProductId(req.params.productId);
+    if (!productId) {
+      return res.status(400).json({ success: false, message: "Invalid productId" });
+    }
+
     const before = req.query.before ? new Date(req.query.before).getTime() : Infinity;
-    const limit = Math.max(1, Math.min(Number(req.query.limit) || HISTORY_PAGE_SIZE, 200));
+    const limit = clamp(Number(req.query.limit) || HISTORY_PAGE_SIZE, 1, 200);
 
     const all = await loadRoom(productId);
     const filtered = all
       .filter((m) => new Date(m.createdAt).getTime() < before)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, limit)
-      .reverse(); // ส่งเรียงเก่า->ใหม่
+      .reverse(); // ส่งเรียงเก่า -> ใหม่
 
     res.json({ success: true, productId, messages: filtered });
   } catch (e) {
@@ -91,22 +138,25 @@ app.get("/history/:productId", async (req, res) => {
   }
 });
 
-// -------- Socket.IO --------
+// ===== Socket.IO =====
 const io = new Server(server, {
   cors: {
-    origin: FRONT_ORIGIN,
+    origin: FRONT_ORIGINS,
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
+// Auth ด้วย JWT ก่อนเชื่อมต่อ
 io.use(async (socket, next) => {
   try {
-    // token มาทาง query ?token=... หรือ ส่งภายหลังด้วย event 'auth'
     const token = socket.handshake.auth?.token || socket.handshake.query?.token;
     if (!token) return next(new Error("Missing token"));
+
     const check = await CheckAvalableToken(token);
     if (!check?.valid) return next(new Error("Invalid token"));
-    // แนบข้อมูล user ไว้กับ socket
+
     socket.user = {
       email: (check?.decoded?.Email || check?.decoded?.email || "").toLowerCase(),
       id: check?.decoded?.ID || check?.decoded?.id || null,
@@ -143,18 +193,21 @@ io.on("connection", (socket) => {
 
   socket.on("join", async ({ productId }) => {
     try {
-      if (!productId) return;
-      const room = roomName(productId);
+      const pid = safeProductId(productId);
+      if (!pid) {
+        return socket.emit("chat:error", { message: "Invalid productId" });
+      }
+      const room = roomName(pid);
       socket.join(room);
 
       // ส่งประวัติล่าสุดให้ client
-      const all = await loadRoom(productId);
+      const all = await loadRoom(pid);
       const last = all.slice(-HISTORY_PAGE_SIZE);
-      socket.emit("chat:history", { productId, messages: last });
+      socket.emit("chat:history", { productId: pid, messages: last });
 
       // แจ้งคนอื่นในห้องว่ามีคนเข้ามา (optional)
       socket.to(room).emit("chat:presence", {
-        productId,
+        productId: pid,
         type: "join",
         user: { email: socket.user.email },
         at: nowISO(),
@@ -167,25 +220,31 @@ io.on("connection", (socket) => {
 
   socket.on("message", async ({ productId, text, clientId }) => {
     try {
-      if (!productId || !text || typeof text !== "string") return;
+      const pid = safeProductId(productId);
+      if (!pid) return socket.emit("chat:error", { message: "Invalid productId" });
+
+      const body = sanitizeText(text);
+      if (!body) return; // ข้อความว่าง/ไม่ถูกต้อง ไม่ต้องทำอะไร
+
       if (!canSend()) {
         return socket.emit("chat:error", { message: "Slow down" });
       }
+
       const msg = {
         id: makeId(),
-        clientId: clientId || null, // ไว้ให้ client map ack ได้
-        productId: String(productId),
+        clientId: clientId || null, // ให้ client map ack ได้
+        productId: pid,
         sender: { email: socket.user.email },
-        text: text.slice(0, 2000),
+        text: body,
         createdAt: nowISO(),
         readBy: [socket.user.email],
       };
 
-      const all = await loadRoom(productId);
+      const all = await loadRoom(pid);
       all.push(msg);
-      await saveRoom(productId, all);
+      await saveRoomQueued(pid, all);
 
-      const room = roomName(productId);
+      const room = roomName(pid);
       io.to(room).emit("chat:new_message", msg);
     } catch (e) {
       console.error("message error:", e);
@@ -194,10 +253,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("typing", ({ productId, isTyping }) => {
-    if (!productId) return;
-    const room = roomName(productId);
+    const pid = safeProductId(productId);
+    if (!pid) return;
+    const room = roomName(pid);
     socket.to(room).emit("chat:typing", {
-      productId,
+      productId: pid,
       user: { email: socket.user.email },
       isTyping: !!isTyping,
     });
@@ -205,8 +265,10 @@ io.on("connection", (socket) => {
 
   socket.on("read", async ({ productId, messageIds = [] }) => {
     try {
-      if (!productId || !Array.isArray(messageIds) || messageIds.length === 0) return;
-      const all = await loadRoom(productId);
+      const pid = safeProductId(productId);
+      if (!pid || !Array.isArray(messageIds) || messageIds.length === 0) return;
+
+      const all = await loadRoom(pid);
       let changed = false;
       for (const m of all) {
         if (messageIds.includes(m.id)) {
@@ -217,10 +279,11 @@ io.on("connection", (socket) => {
           }
         }
       }
-      if (changed) await saveRoom(productId, all);
-      const room = roomName(productId);
+      if (changed) await saveRoomQueued(pid, all);
+
+      const room = roomName(pid);
       socket.to(room).emit("chat:read", {
-        productId,
+        productId: pid,
         reader: socket.user.email,
         messageIds,
         at: nowISO(),
@@ -235,6 +298,7 @@ io.on("connection", (socket) => {
   });
 });
 
+// ===== Start =====
 server.listen(PORT, () => {
   console.log(`Chat server running on port ${PORT}`);
 });

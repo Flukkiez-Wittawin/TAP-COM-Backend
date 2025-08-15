@@ -1,4 +1,4 @@
-// index.js
+// index.js (fixed)
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
@@ -57,13 +57,23 @@ const server = http.createServer(app);
 
 app.use(express.json());
 
-// ตั้ง CORS ที่เดียวให้ชัดเจน
-const FRONT_ORIGIN = process.env.FRONT_ORIGIN || "http://localhost:5173";
-const API_PORT = Number(process.env.PORT_API || 3001);
+// ให้ Express เชื่อ proxy (เช่น Render) เพื่อให้ req.protocol ถูกต้องเป็น https
+app.set("trust proxy", 1);
 
+// ✅ ใช้พอร์ตจาก Render/Platform เสมอ
+const PORT = Number(process.env.PORT || 3001);
+
+// ✅ รองรับหลาย origin (dev + prod)
+// ตั้ง ENV: FRONT_ORIGINS="http://localhost:5173,https://your-frontend-domain"
+const FRONT_ORIGINS = (process.env.FRONT_ORIGINS || "http://localhost:5173")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+// ตั้ง CORS ที่เดียวให้ครอบคลุม ทั้ง REST และ Socket.IO
 app.use(
   cors({
-    origin: FRONT_ORIGIN,
+    origin: FRONT_ORIGINS,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   })
@@ -71,15 +81,24 @@ app.use(
 
 const io = new Server(server, {
   cors: {
-    origin: FRONT_ORIGIN,
+    origin: FRONT_ORIGINS,
     methods: ["GET", "POST"],
+    credentials: true,
   },
+  transports: ["websocket", "polling"],
 });
 
 // ------------------- Utils / Validators -------------------
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
 const strongPwdRegex =
   /^(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>_])[A-Za-z\d!@#$%^&*(),.?":{}|<>_]{8,}$/;
+
+// base URL helper เพื่อเลิก hardcode localhost
+function getBaseUrl(req) {
+  const proto = req.get("x-forwarded-proto") || req.protocol;
+  const host = req.get("host");
+  return `${proto}://${host}`;
+}
 
 function normalizeEmail(e) {
   return String(e || "").trim().toLowerCase();
@@ -162,7 +181,6 @@ async function Success_Aunction(highestBidder, aunction_owner, productId) {
 async function onHighestBidderChanged(prevBidder, newBidder, isFinal) {
   const tasks = [];
   if (prevBidder) tasks.push(SendMailerAuto(prevBidder, "OutBid"));
-  // แจ้งผู้นำเฉพาะตอนยังไม่จบ (ต้องมี template TopBidder ใน EmailSender ด้วยถ้าจะใช้จริง)
   if (!isFinal && newBidder) tasks.push(SendMailerAuto(newBidder, "TopBidder"));
   if (tasks.length) await Promise.allSettled(tasks);
 }
@@ -373,7 +391,7 @@ app.post("/profile/update", uploadProfile.single("avatar"), async (req, res) => 
     } = req.body;
 
     const profileUrl = req.file
-      ? `http://localhost:3001/static/profile/${req.file.filename}`
+      ? `${getBaseUrl(req)}/static/profile/${req.file.filename}`
       : undefined;
 
     const result = await UpdateProfile(
@@ -538,9 +556,8 @@ app.post("/upload", Upload.array("images", 10), async (req, res) => {
       durationDays,
     } = req.body;
 
-    const fileLinks = req.files.map(
-      (f) => `http://localhost:3001/get/upload/${f.filename}`
-    );
+    const base = getBaseUrl(req);
+    const fileLinks = req.files.map((f) => `${base}/get/upload/${f.filename}`);
 
     const info = String(title || "").trim();
     const value = Number(bidMin);
@@ -678,7 +695,7 @@ app.post("/forgot/reset", forgotLimiter, async (req, res) => {
 });
 
 // ------------------- Start Server -------------------
-server.listen(API_PORT, () => {
-  console.log("Server running on port 3001");
+server.listen(PORT, () => {
+  console.log("Server running on port", PORT);
   LoadProductsData(products);
 });

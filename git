@@ -1,0 +1,7 @@
+echo "# TAP-COM-Backend" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/Flukkiez-Wittawin/TAP-COM-Backend.git
+git push -u origin main
