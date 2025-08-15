@@ -633,11 +633,13 @@ app.post("/send-mail", async (req, res) => {
 // ------------------- Forgot Password Routes -------------------
 const forgotLimiter = rateLimit({
   windowMs: 10 * 60 * 1000, // 10 นาที
-  max: 5, // ต่อ IP
+  max: 5,                   // ต่อ IP
   standardHeaders: true,
   legacyHeaders: false,
+  keyGenerator: (req, _res) => req.ip, // ใช้ IP หลัง trust proxy
   message: { success: false, message: "Too many forgot attempts. Try again later." },
 });
+
 
 // Step 1: ขอรหัสรีเซ็ต
 app.post("/forgot/request", forgotLimiter, async (req, res) => {
