@@ -7,6 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const multer = require("multer");
 const rateLimit = require("express-rate-limit");
+const { ipKeyGenerator } = require("express-rate-limit"); // << เพิ่มบรรทัดนี้
 
 // ===== ระบบ auth / users =====
 const {
@@ -56,6 +57,8 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 
 // ให้ Express เชื่อ proxy (เช่น Render) เพื่อให้ req.protocol ถูกต้องเป็น https
 app.set("trust proxy", 1);
@@ -640,11 +643,11 @@ app.post("/send-mail", async (req, res) => {
 
 // ------------------- Forgot Password Routes -------------------
 const forgotLimiter = rateLimit({
-  windowMs: 10 * 60 * 1000, // 10 นาที
-  max: 5,                   // ต่อ IP
+  windowMs: 10 * 60 * 1000,
+  limit: 5,                    // <-- ใช้ limit (v7) แทน max
   standardHeaders: true,
   legacyHeaders: false,
-  keyGenerator: (req, _res) => req.ip, // ใช้ IP หลัง trust proxy
+  keyGenerator: (req) => ipKeyGenerator(req), // <-- ใช้ helper ของ lib
   message: { success: false, message: "Too many forgot attempts. Try again later." },
 });
 
