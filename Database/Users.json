@@ -1,0 +1,156 @@
+[
+  {
+    "ID": "TAP.ID-1",
+    "Email": "developersexsive@gmail.com",
+    "Password": "$2b$10$16BPbIGr/JOWlGN9Rh6AA.66X39.tWT0YudDAKfrJQ7u5Vs4Xun8u",
+    "onRegister": "04/08/25",
+    "Personal": {
+      "FirstName": "Wittawin",
+      "LastName": "Chadasin",
+      "BirthDay": "2010-10-18",
+      "Profile": "http://localhost:3001/static/profile/1754847725531-528374846.png",
+      "AlreadyCheck": true,
+      "IsOnBlacklist": false,
+      "Country": "Thailand",
+      "PhoneNumber": "0952875776",
+      "Line": "@fuckkriss",
+      "Facebook": "SlalonZ",
+      "Instagram": "@so_borinn.g",
+      "Twitter": "",
+      "Youtube": "@ftoz-e",
+      "Tiktok": "@pldarkkisk",
+      "Address": "27/2 KhonKaen\r\nTT"
+    },
+    "Score": {
+      "Win": 1,
+      "Lose": 0,
+      "DontGet": 0
+    },
+    "CheckUser": {
+      "MainCard": "",
+      "CardWithFace": ""
+    },
+    "CurrentWin": [
+      {
+        "win": 8,
+        "date": "2025-08-13T08:58:09"
+      }
+    ],
+    "Role": "admin"
+  },
+  {
+    "ID": "TAP.ID-2",
+    "Email": "xsx@gmail.com",
+    "Password": "$2b$10$iZ.UZBQWIEz7jlJCetw9k.Fw5c1jmGZdjZdhhEz3ZUg56H/pYUwmm",
+    "onRegister": "05/08/25",
+    "Personal": {
+      "FirstName": "W",
+      "LastName": "X",
+      "BirthDay": "",
+      "Profile": "http://localhost:3001/get/upload/1754621232315-454988372.jpeg",
+      "AlreadyCheck": true,
+      "IsOnBlacklist": false,
+      "Country": "TH",
+      "PhoneNumber": "",
+      "Line": "",
+      "Facebook": "",
+      "Instagram": "",
+      "Twitter": "",
+      "Youtube": "",
+      "Tiktok": "",
+      "Address": ""
+    },
+    "Score": {
+      "Win": 0,
+      "Lose": 0,
+      "DontGet": 0
+    },
+    "CheckUser": {
+      "MainCard": "",
+      "CardWithFace": ""
+    },
+    "CurrentWin": [],
+    "Role": "user"
+  },
+  {
+    "ID": "TAP.ID-3",
+    "Email": "exsivevl@gmail.com",
+    "Password": "$2b$10$FX0NJzAAY.nAS3O7CeuyrecWb6AGAbCiw.iSX5VTQBja2tVbbNSLS",
+    "onRegister": "01/01/1990",
+    "Personal": {
+      "FirstName": "ADMIN",
+      "LastName": "TAPCOM",
+      "BirthDay": "",
+      "Profile": "http://localhost:3001/static/profile/1754732620178-294914784.jpeg",
+      "AlreadyCheck": true,
+      "IsOnBlacklist": false,
+      "Country": "TH",
+      "PhoneNumber": "0952875776",
+      "Address": "22/22",
+      "Line": "@fuckkriss",
+      "Facebook": "Soboring Wittawin Chadasin",
+      "Instagram": "@so_borinn.g",
+      "Twitter": "",
+      "Youtube": "FTOZ",
+      "Tiktok": ""
+    },
+    "Score": {
+      "Win": 6,
+      "Lose": 1,
+      "DontGet": 0
+    },
+    "CheckUser": {
+      "MainCard": "",
+      "CardWithFace": ""
+    },
+    "CurrentWin": [
+      {
+        "win": 6,
+        "date": "2025-08-12T14:08:30"
+      },
+      {
+        "win": 7,
+        "date": "2025-08-12T15:05:07"
+      },
+      {
+        "win": 9,
+        "date": "2025-08-15T01:55:42"
+      }
+    ],
+    "Role": "user"
+  },
+  {
+    "ID": "TAP.ID-4",
+    "Email": "exslayknightblood@gmail.com",
+    "Password": "$2b$10$rQF2e0gyndvbovUlQwlvC.LSyX6kK6gxewy2iQ0zYnUYBxC3eHV.y",
+    "onRegister": {},
+    "Personal": {
+      "FirstName": "Test",
+      "LastName": "Tap",
+      "BirthDay": "",
+      "Profile": "",
+      "AlreadyCheck": false,
+      "IsOnBlacklist": false,
+      "Country": "TH",
+      "PhoneNumber": "",
+      "Line": "",
+      "Facebook": "",
+      "Instagram": "",
+      "Twitter": "",
+      "Youtube": "",
+      "Tiktok": "",
+      "Address": ""
+    },
+    "Score": {
+      "Win": 3,
+      "Lose": 2,
+      "DontGet": 0
+    },
+    "CheckUser": {
+      "MainCard": "",
+      "CardWithFace": ""
+    },
+    "CurrentWin": [],
+    "Role": "user"
+  }
+]

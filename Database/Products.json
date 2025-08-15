@@ -1,0 +1,237 @@
+[
+  {
+    "id": 1,
+    "info": "Tex",
+    "value": 2202,
+    "bit": 100,
+    "UserClick": 17,
+    "max": 2000,
+    "type": "success",
+    "aunction_owner": "xs@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1754638630915-949652663.jpeg",
+      "http://localhost:3001/get/upload/1754638630919-552012212.jpeg",
+      "http://localhost:3001/get/upload/1754638630931-25078114.jpeg"
+    ],
+    "productType": "ของโบราณ",
+    "startedAt": "2025-08-08T07:37:10.942Z",
+    "endAt": "2025-08-13T07:37:10.942Z",
+    "description": "Gexx",
+    "category": "ของสะสม / ของเล่น",
+    "highestBidder": "xsxx@gmail.com",
+    "CurrentEmail": [
+      "wittawin.c@kkumail.com",
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 2,
+    "info": "X",
+    "value": 5100,
+    "bit": 100,
+    "UserClick": 8,
+    "max": 5000,
+    "type": "success",
+    "aunction_owner": "exsivevl@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1754734335204-642331381.jpeg",
+      "http://localhost:3001/get/upload/1754734335215-160271115.jpeg",
+      "http://localhost:3001/get/upload/1754734335224-2599663.jpeg"
+    ],
+    "productType": "ของโบราณ",
+    "description": "s",
+    "category": "ของสะสม / ของเล่น",
+    "startedAt": "2025-08-09T10:12:15.232Z",
+    "endAt": "2025-08-14T10:12:15.232Z",
+    "highestBidder": "exslayknightblood@gmail.com",
+    "CurrentEmail": [
+      "wittawin.c@kkumail.com",
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 3,
+    "info": "T",
+    "value": 2000,
+    "bit": 10,
+    "UserClick": 1,
+    "max": 2000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1754847097433-154346842.png"
+    ],
+    "productType": "ของใช้ในบ้าน",
+    "description": "ex",
+    "category": "สินค้าสามัญประจำบ้าน",
+    "startedAt": "2025-08-10T17:31:37.437Z",
+    "endAt": "2025-08-11T17:31:37.437Z",
+    "highestBidder": "exsivevl@gmail.com",
+    "CurrentEmail": [
+      "wittawin.c@kkumail.com",
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 4,
+    "info": "xzvdkljxhvjkxc",
+    "value": 4,
+    "bit": 1,
+    "UserClick": 3,
+    "max": 2000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1754906426499-995979301.png"
+    ],
+    "productType": "เครื่องใช้ไฟฟ้าทั่วไป",
+    "description": "xzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxcxzvdkljxhvjkxc",
+    "category": "สินค้าอิเล็กทรอนิกส์",
+    "startedAt": "2025-08-11T10:00:26.507Z",
+    "endAt": "2025-08-11T10:14:50.507Z",
+    "highestBidder": "exslayknightblood@gmail.com",
+    "CurrentEmail": [
+      "exslayknightblood@gmail.com",
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 5,
+    "info": "X",
+    "value": 5000,
+    "bit": 1,
+    "UserClick": 2,
+    "max": 5000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1754907743422-678345625.png"
+    ],
+    "productType": "วัตถุมงคล",
+    "description": "s",
+    "category": "ของสะสม / ของเล่น",
+    "startedAt": "2025-08-11T10:22:23.433Z",
+    "endAt": "2025-08-12T10:22:23.433Z",
+    "highestBidder": "exsivevl@gmail.com",
+    "CurrentEmail": [
+      "exslayknightblood@gmail.com",
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 6,
+    "info": "Te",
+    "value": 5020,
+    "bit": 10,
+    "UserClick": 2,
+    "max": 5000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1755005885285-404166621.png"
+    ],
+    "productType": "ของเล่นเด็ก",
+    "description": "xzc",
+    "category": "ของสะสม / ของเล่น",
+    "startedAt": "2025-08-12T13:38:05.299Z",
+    "endAt": "2025-08-13T13:38:05.299Z",
+    "highestBidder": "exsivevl@gmail.com",
+    "CurrentEmail": [
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 7,
+    "info": "xzczx",
+    "value": 5200,
+    "bit": 100,
+    "UserClick": 1,
+    "max": 5000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1755011073290-717938510.jpeg",
+      "http://localhost:3001/get/upload/1755011073302-293984641.jpeg"
+    ],
+    "productType": "เฟอร์นิเจอร์",
+    "description": "zxc",
+    "category": "สินค้าสามัญประจำบ้าน",
+    "startedAt": "2025-08-12T15:04:33.307Z",
+    "endAt": "2025-08-13T15:04:33.307Z",
+    "highestBidder": "exsivevl@gmail.com",
+    "CurrentEmail": [
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 8,
+    "info": "ASXCZXC",
+    "value": 5100,
+    "bit": 100,
+    "UserClick": 1,
+    "max": 5000,
+    "type": "success",
+    "aunction_owner": "exsivevl@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1755075474007-710665898.jpeg",
+      "http://localhost:3001/get/upload/1755075474009-967220431.jpeg"
+    ],
+    "productType": "เครื่องใช้ไฟฟ้าทั่วไป",
+    "description": "ASCZxzczxc",
+    "category": "สินค้าอิเล็กทรอนิกส์",
+    "startedAt": "2025-08-13T08:57:54.018Z",
+    "endAt": "2025-08-16T08:57:54.018Z",
+    "highestBidder": "developersexsive@gmail.com",
+    "CurrentEmail": [
+      "developersexsive@gmail.com"
+    ]
+  },
+  {
+    "id": 9,
+    "info": "hhh",
+    "value": 2300,
+    "bit": 100,
+    "UserClick": 2,
+    "max": 2000,
+    "type": "success",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1755222882162-106815618.jpeg",
+      "http://localhost:3001/get/upload/1755222882170-465650154.jpeg",
+      "http://localhost:3001/get/upload/1755222882177-398088817.jpeg"
+    ],
+    "productType": "ของใช้ในบ้าน",
+    "description": "xxx",
+    "category": "สินค้าสามัญประจำบ้าน",
+    "startedAt": "2025-08-15T01:54:42.178Z",
+    "endAt": "2025-08-18T01:54:42.178Z",
+    "highestBidder": "exsivevl@gmail.com",
+    "CurrentEmail": [
+      "exsivevl@gmail.com"
+    ]
+  },
+  {
+    "id": 10,
+    "info": "tt",
+    "value": 500,
+    "bit": 3,
+    "UserClick": 0,
+    "max": 5000,
+    "type": "waiting",
+    "aunction_owner": "developersexsive@gmail.com",
+    "images": [
+      "http://localhost:3001/get/upload/1755226292556-960632892.jpeg",
+      "http://localhost:3001/get/upload/1755226292558-998358857.jpeg",
+      "http://localhost:3001/get/upload/1755226292560-472016269.jpeg",
+      "http://localhost:3001/get/upload/1755226292561-595085755.jpeg",
+      "http://localhost:3001/get/upload/1755226292563-172400451.jpeg"
+    ],
+    "productType": "เฟอร์นิเจอร์",
+    "description": "ffg",
+    "category": "สินค้าสามัญประจำบ้าน",
+    "startedAt": "2025-08-15T02:51:32.564Z",
+    "endAt": "2025-08-18T02:51:32.564Z",
+    "highestBidder": "",
+    "CurrentEmail": []
+  }
+]
